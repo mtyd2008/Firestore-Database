@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .head{
+            text-align: center;
+            background-color: #000;
+            color: #fff;
+        }
+
+        #form{
+            text-align: center;
+        }
+
+        .container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .box{
+            border: 1px solid #000;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="head">Firestore</h1>
+
+    <form id="form">
+        <input type="text" placeholder="enter title" id="title"><br><br>
+        <textarea id="description" placeholder="enter description"></textarea><br><br>
+
+        <button>Add todo</button>
+    </form>
+
+    <div class="container"></div>
+
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
