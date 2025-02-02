@@ -1,5 +1,4 @@
-import { collection, addDoc, getDocs, Timestamp, query, orderBy, limit,  doc,
-  deleteDoc , updateDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+import { collection, addDoc, getDocs, Timestamp, query, orderBy, doc, deleteDoc , updateDoc } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
 import { db } from "./config.js"; 
 
 
@@ -7,14 +6,18 @@ const form = document.querySelector("#form")
 const title = document.querySelector("#title")
 const description = document.querySelector("#description")
 const div = document.querySelector(".container")
-const deleteBtn = document.querySelectorAll(".deleteBtn")
-const edit = document.querySelectorAll(".editBtn")
+const del = document.querySelectorAll("#delete")
+const edt = document.querySelectorAll("#edit")
+
 
 
 let todoArr = []
 
-async function getData(){
-  const querySnapshot = await getDocs(collection(db, "todos"));
+async function getDatafromfirestore(){
+  todoArr.length = 0 
+  const q = query(collection(db , "todos"), orderBy('todoDate', "desc"));
+
+  const querySnapshot = await getDocs(q);
   querySnapshot.forEach((doc) => {
     // console.log(`${doc.id} => ${doc.data()}`);
     todoArr.push({...doc.data() , Id: doc.id})
@@ -31,39 +34,38 @@ function renderData(arr){
       <div class="box">
         <p>Title: ${item.title}</p>
         <p>Description: ${item.description}</p>
-        <button class="deleteBtn">delete</button>
-        <button class="editBtn">edit</button>
+        <button id="delete" class="btn btn-danger">Delete</button>
+        <button id="edit" class="btn btn-info">Edit</button>
       </div>
      `
   })
 
-  deleteBtn.forEach((item , index)=>{
-    // console.log(item);
-    item.addEventListener('click' , async (event)=>{
-      // console.log("btn clicked");
-      await deleteDoc(doc(db, "todos", todoArr[index].Id));
-      todoArr.splice(index , 1)
-      renderData(todoArr)
+  del.forEach((btn , index)=>{
+    btn.addEventListener('click' , async (Id)=>{
+      console.log("del click" , index);
+    
+        await deleteDoc(doc(db, "todos", todoArr[index].Id));
+        todoArr.splice(index , 1)
+        renderData()
     })
-   })
+  })
+  
+  edt.forEach((btn , index)=>{
+    btn.addEventListener('click' , async (Id)=>{
+      console.log("edt click" , index);
+      const todoRef = doc(db, 'todos', todoArr[index].Id);
+      const updatedTitle = prompt("enter updated title")
 
-   edit.forEach((item , index)=>{
-    // console.log(item);
-    item.addEventListener('click' , async (event)=>{
-      // console.log("btn clicked");
-      const updateTitle = prompt("Enter updated title")
+      await updateDoc(todoRef, {
+        title: updatedTitle
+    });
+       renderData()
+    })
+  })
 
-      const todoRef = doc(db, "todos", todoArr[index].Id);
-      await updateDoc(todoRef, { 
-        title: updateTitle
-      });
-      todoArr[index].title = updateTitle
-      renderData(todoArr)
-   })
-})
 }
 
-getData()
+getDatafromfirestore()
 renderData(todoArr)
 
 
@@ -77,21 +79,17 @@ try {
   const docRef = await addDoc(collection(db, "todos"), {
   title: title.value,
   description: description.value,
-  dateExample: Timestamp.fromDate(new Date()),
+  todoDate: Timestamp.fromDate(new Date()),
 });
 
   console.log("Document written with ID: ", docRef.id);
-
-  const q = query(docRef, orderBy(dateExample, "desc"));
-  todoArr.unshift({
-    title: title.value,
-    description: description.value,
-    dateExample: Timestamp.fromDate(new Date()),
-    Id: docRef.id,
-  })
+  getDatafromfirestore()
 }
 catch (e) {
   console.error("Error adding document: ", e);
 }
+
+title.value = ''
+description.value = ''
 })
 
