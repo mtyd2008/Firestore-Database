@@ -6,9 +6,6 @@ const form = document.querySelector("#form")
 const title = document.querySelector("#title")
 const description = document.querySelector("#description")
 const div = document.querySelector(".container")
-const del = document.querySelectorAll("#delete")
-const edt = document.querySelectorAll("#edit")
-
 
 
 let todoArr = []
@@ -34,36 +31,53 @@ function renderData(arr){
       <div class="box">
         <p>Title: ${item.title}</p>
         <p>Description: ${item.description}</p>
-        <button id="delete" class="btn btn-danger">Delete</button>
-        <button id="edit" class="btn btn-info">Edit</button>
+        <button class="btn btn-danger delete">Delete</button>
+        <button class="btn btn-info edit">Edit</button>
       </div>
      `
   })
+  addEvntListnr()
+}
 
-  del.forEach((btn , index)=>{
+
+function addEvntListnr(){
+  document.querySelectorAll(".delete").forEach((btn , index)=>{
     btn.addEventListener('click' , async (Id)=>{
-      console.log("del click" , index);
-    
+      // console.log('delete clicked');
+
+      try {
         await deleteDoc(doc(db, "todos", todoArr[index].Id));
         todoArr.splice(index , 1)
-        renderData()
+        renderData(todoArr)
+
+      } catch (error) {
+        console.log(error); 
+      }
     })
   })
-  
-  edt.forEach((btn , index)=>{
-    btn.addEventListener('click' , async (Id)=>{
-      console.log("edt click" , index);
-      const todoRef = doc(db, 'todos', todoArr[index].Id);
-      const updatedTitle = prompt("enter updated title")
 
+
+  document.querySelectorAll(".edit").forEach((btn , index)=>{
+    btn.addEventListener('click' , async (Id) => {
+      console.log('edit clicked');
+      
+      try {
+        const todoRef = doc(db, 'todos', todoArr[index].Id);
+      const updatedTitle = prompt("enter updated title")
       await updateDoc(todoRef, {
         title: updatedTitle
-    });
-       renderData()
+      });
+      todoArr[index].title = updatedTitle;
+      renderData(todoArr)
+
+      } catch (error) {
+        console.log(error);
+      }
     })
   })
 
 }
+
 
 getDatafromfirestore()
 renderData(todoArr)
@@ -92,4 +106,3 @@ catch (e) {
 title.value = ''
 description.value = ''
 })
-
